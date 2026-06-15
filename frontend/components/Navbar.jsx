@@ -1,0 +1,56 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { clearToken, getAccessToken } from '../src/utils/auth';
+
+function Navbar() {
+    const { cartItems, fetchCart } = useCart();
+    const navigate = useNavigate();
+
+    let cartCount = 0;
+    if (cartItems && cartItems instanceof Array) {
+        cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+    }
+
+    const isLoggedin = !!getAccessToken();
+
+    const handleLogout = () => {
+        clearToken();
+        fetchCart();
+        navigate('/login');
+    };
+
+    return (
+        <nav className='bg-white shadow-md px-6 py-4 flex justify-between items-center fixed w-full top-0 z-50'>
+            <Link to='/' className='text-2xl font-bold text-gray-800'>
+                🛍️
+            </Link>
+            <div className='flex items-center gap-6'>
+                {!isLoggedin ? (
+                    <>
+                        <Link to='/login' className='text-gray-800 hover:text-gray-600 font-medium'>
+                            Login
+                        </Link>
+                        <Link to='/signup' className='text-gray-800 hover:text-gray-600 font-medium'>
+                            Signup
+                        </Link>
+                    </>
+                ) : (
+                    <button onClick={handleLogout} className='text-gray-800 hover:text-gray-600'>
+                        Logout
+                    </button>
+                )}
+            </div>
+
+            <Link to='/cart' className='relative text-gray-800 hover:text-gray-600 font-medium'>
+                Cart 🛒
+                {cartCount > 0 && (
+                    <span className='absolute -top-2 right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2'>
+                        {cartCount}
+                    </span>
+                )}
+            </Link>
+        </nav >
+    )
+}
+
+export default Navbar; 
